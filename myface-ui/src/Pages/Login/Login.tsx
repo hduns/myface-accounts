@@ -9,9 +9,11 @@ export function Login(): JSX.Element {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     
-    function tryLogin(event: FormEvent) {
+    async function tryLogin(event: FormEvent) {
         event.preventDefault();
+        // if (await loginContext.checkLoginDetails(username, password)) {
         loginContext.logIn();
+        // }
     }
     
     return (

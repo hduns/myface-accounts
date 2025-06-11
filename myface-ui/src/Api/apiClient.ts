@@ -1,4 +1,5 @@
-﻿export interface ListResponse<T> {
+﻿
+export interface ListResponse<T> {
     items: T[];
     totalNumberOfItems: number;
     page: number;
@@ -15,6 +16,8 @@ export interface User {
     email: string;
     profileImageUrl: string;
     coverImageUrl: string;
+    hashedPassword: string;
+    salt: any;
 }
 
 export interface Interaction {
@@ -83,3 +86,17 @@ export async function createPost(newPost: NewPost) {
         throw new Error(await response.json())
     }
 }
+
+// export async function fetchUserDetails(username: string): Promise<any> {
+//     let response = await fetch(`https://localhost:5001/users/?search=${username}`);
+//     return await response.json();
+// }
+
+// export async function GetUserInputHashed(userInput: string, salt: string): Promise<string> {
+//     // console.log(userInput);
+//     const response = await fetch(`https://localhost:5001/login/ConvertPasswordToHashed?password=${userInput}&salt=${salt}`);
+//     console.log(response);
+//     // console.log(response.toString());
+//     return response.toString();
+//     // return await response.json();
+// }

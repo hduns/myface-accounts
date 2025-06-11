@@ -1,6 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Identity;
 using MyFace.Models.Database;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System;
+
 
 namespace MyFace.Data
 {
@@ -119,6 +124,25 @@ namespace MyFace.Data
 
         private static User CreateRandomUser(int index)
         {
+            var Password = "Password";
+            byte[] salt = new byte[128 / 8]; 
+            using (var rngCsp = new RNGCryptoServiceProvider())
+            {
+                rngCsp.GetNonZeroBytes(salt);
+            
+            }
+            
+        var hashedPassword = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: Password,
+            salt: salt,
+            prf: KeyDerivationPrf.HMACSHA256,
+            iterationCount: 100000,
+            numBytesRequested: 256 / 8));
+
+            // var hashedSalt = Convert.ToBase64String(salt);
+            // HashedPassword = HashPassword(Password);
+            
+            var hasher = new PasswordHasher<User>();
             return new User
             {
                 FirstName = Data[index][0],
@@ -127,7 +151,12 @@ namespace MyFace.Data
                 Email = Data[index][3],
                 ProfileImageUrl = ImageGenerator.GetProfileImage(Data[index][2]),
                 CoverImageUrl = ImageGenerator.GetCoverImage(index),
+                Salt = salt,
+                HashedPassword = hashedPassword
+              //  HashedPassword = hasher.HashPassword(null, Password)
             };
+            
+            
         }
     }
 }

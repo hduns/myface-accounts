@@ -2,6 +2,9 @@
 using System.Linq;
 using MyFace.Models.Database;
 using MyFace.Models.Request;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System;
 
 namespace MyFace.Repositories
 {
@@ -10,6 +13,7 @@ namespace MyFace.Repositories
         IEnumerable<User> Search(UserSearchRequest search);
         int Count(UserSearchRequest search);
         User GetById(int id);
+        User GetByUsername(string username);
         User Create(CreateUserRequest newUser);
         User Update(int id, UpdateUserRequest update);
         void Delete(int id);
@@ -56,9 +60,32 @@ namespace MyFace.Repositories
             return _context.Users
                 .Single(user => user.Id == id);
         }
+        
+        public User GetByUsername(string username)
+        {
+            return _context.Users
+                .Single(user => user.Username == username);
+        }
+
+
+        // ADD PASSWORD HASHING HERE
 
         public User Create(CreateUserRequest newUser)
         {
+            byte[] salt = new byte[128 / 8];
+            using (var rngCsp = new RNGCryptoServiceProvider())
+            {
+                rngCsp.GetNonZeroBytes(salt);
+
+            }
+
+            var hashedPassword = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: newUser.Password,
+                salt: salt,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+
             var insertResponse = _context.Users.Add(new User
             {
                 FirstName = newUser.FirstName,
@@ -67,6 +94,8 @@ namespace MyFace.Repositories
                 Username = newUser.Username,
                 ProfileImageUrl = newUser.ProfileImageUrl,
                 CoverImageUrl = newUser.CoverImageUrl,
+                Salt = salt,
+                HashedPassword = hashedPassword
             });
             _context.SaveChanges();
 
