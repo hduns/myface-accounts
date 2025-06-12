@@ -11,9 +11,20 @@ export function Login(): JSX.Element {
     
     async function tryLogin(event: FormEvent) {
         event.preventDefault();
-        // if (await loginContext.checkLoginDetails(username, password)) {
-        loginContext.logIn();
-        // }
+         try {
+            loginContext.encodedLoginDetails(username, password);
+            loginContext.logIn();
+         
+// IF response from Basic Auth Handler is 200, Login COntext.log > encode details 
+        } catch (error) {
+            loginContext.logOut();
+            loginContext.header = "";
+// Reload login and set logOUt context / encodeLoginDetails /relevant property should be null 
+        }
+
+        // Get response from handler and if returns 401, return to Loginpage, loginContext.logOut
+
+
     }
     
     return (

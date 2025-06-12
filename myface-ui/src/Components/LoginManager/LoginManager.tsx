@@ -6,8 +6,11 @@ export const LoginContext = createContext({
     isLoggedIn: false,
     isAdmin: false,
     logIn: () => {},
-    logOut: () => {}
+    logOut: () => {},
+    encodedLoginDetails: (username:string, password: string) => {},
+    header: ""
     // checkLoginDetails: async (username: string, password: string) => Promise.resolve(false)
+    
 });
 
 interface LoginManagerProps {
@@ -15,7 +18,8 @@ interface LoginManagerProps {
 }
 
 export function LoginManager(props: LoginManagerProps): JSX.Element {
-    const [loggedIn, setLoggedIn] = useState(true);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [header, setHeader] = useState("");
     
     function logIn() {
         setLoggedIn(true);
@@ -25,31 +29,27 @@ export function LoginManager(props: LoginManagerProps): JSX.Element {
         setLoggedIn(false);
     }
 
-    // async function checkLoginDetails(username: string, password: string) {
-    //     // console.log(password)
-    //     var response = await fetchUserDetails(username);
-    //     var user = response.items[0];
-    //     var storedUsername = user.username;
-    //     var storedHashedPassword = user.hashedPassword;
-    //     var storedSalt = user.salt;
-    //     console.log(typeof storedSalt);
+    function getLoginDetails(username:string, password: string) {
 
-    //     //storedSalt = Array.ConvertAll(bytesArray, Convert.ToInt32);
+        // Combine username and password with a colon
+         const credentials = `${username}:${password}`;
 
-    //     // console.log(typeof storedSalt);
-    //     var hashedPassword = await GetUserInputHashed(password, storedSalt);
-    //     console.log(hashedPassword);
-    //     // var hashedPassword = await GetUserInputHashed(password, storedSalt);
+        // Encode the credentials to Base64
+        const base64EncodedCredentials = btoa(credentials);
 
-    //     // return hashedPassword == storedHashedPassword && username == storedUsername ? true : false;
-    //     return false;
-    // }
+        // Add to the Authorization header
+        const authorizationHeader = `Basic ${base64EncodedCredentials}`;
+        setHeader(authorizationHeader);
+        return authorizationHeader;
+    }
 
     const context = {
         isLoggedIn: loggedIn,
         isAdmin: loggedIn,
         logIn: logIn,
-        logOut: logOut
+        logOut: logOut,
+        encodedLoginDetails: getLoginDetails,
+        header: header
         // checkLoginDetails: checkLoginDetails
     };
     

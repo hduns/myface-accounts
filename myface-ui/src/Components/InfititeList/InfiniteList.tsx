@@ -1,17 +1,20 @@
-﻿import React, {ReactNode, useEffect, useState} from "react";
+﻿import React, {ReactNode, useEffect, useState, useContext } from "react";
 import {ListResponse} from "../../Api/apiClient";
 import {Grid} from "../Grid/Grid";
 import "./InfiniteList.scss";
+import {LoginContext} from "../../Components/LoginManager/LoginManager";
+
 
 interface InfiniteListProps<T> {
     fetchItems: (page: number, pageSize: number) => Promise<ListResponse<T>>;
-    renderItem: (item: T) => ReactNode;
+    renderItem: (item: any) => ReactNode;
 }
 
 export function InfiniteList<T>(props: InfiniteListProps<T>): JSX.Element {
     const [items, setItems] = useState<T[]>([]);
     const [page, setPage] = useState(1);
     const [hasNextPage, setHasNextPage] = useState(false);
+    const loginContext = useContext(LoginContext);
 
     function replaceItems(response: ListResponse<T>) {
         setItems(response.items);
