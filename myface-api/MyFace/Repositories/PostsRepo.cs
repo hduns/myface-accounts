@@ -14,7 +14,7 @@ namespace MyFace.Repositories
         int Count(PostSearchRequest search);
         int CountFeed(FeedSearchRequest searchRequest);
         Post GetById(int id);
-        Post Create(CreatePostRequest post);
+        Post Create(FormatNewPostRequest post);
         Post Update(int id, UpdatePostRequest update);
         void Delete(int id);
     }
@@ -73,7 +73,7 @@ namespace MyFace.Repositories
                 .Single(post => post.Id == id);
         }
 
-        public Post Create(CreatePostRequest post)
+        public Post Create(FormatNewPostRequest post)
         {
             var insertResult = _context.Posts.Add(new Post
             {

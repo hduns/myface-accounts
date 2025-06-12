@@ -3,6 +3,9 @@ using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Text;
+
 
 namespace MyFace.Controllers
 {
@@ -13,10 +16,12 @@ namespace MyFace.Controllers
     public class PostsController : ControllerBase
     {
         private readonly IPostsRepo _posts;
+        private readonly IUsersRepo _users;
 
-        public PostsController(IPostsRepo posts)
+        public PostsController(IPostsRepo posts, IUsersRepo users)
         {
             _posts = posts;
+            _users = users;
         }
 
         [HttpGet("")]
@@ -42,10 +47,26 @@ namespace MyFace.Controllers
                 return BadRequest(ModelState);
             }
 
-            var post = _posts.Create(newPost);
+            var authorizationHeader = Request.Headers["Authorization"].ToString();
+            string encodedUsernamePassword = authorizationHeader.Substring("Basic ".Length).Trim();
+            Encoding encoding = Encoding.GetEncoding("iso-8859-1");
+            string usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
+            int seperatorIndex = usernamePassword.IndexOf(':');
+            var username = usernamePassword.Substring(0, seperatorIndex);
+            var user = _users.GetByUsername(username);
 
-            var url = Url.Action("GetById", new { id = post.Id });
-            var postResponse = new PostResponse(post);
+            var post = new FormatNewPostRequest
+            {
+                ImageUrl = newPost.ImageUrl,
+                Message = newPost.Message,
+                PostedAt = DateTime.Now,
+                UserId = user.Id,
+            };
+            
+            var formattedPost = _posts.Create(post);
+
+            var url = Url.Action("GetById", new { id = post.UserId });
+            var postResponse = new PostResponse(formattedPost);
             return Created(url, postResponse);
         }
 

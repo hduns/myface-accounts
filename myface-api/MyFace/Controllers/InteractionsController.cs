@@ -3,6 +3,8 @@ using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using System;
+using System.Text;
 
 
 namespace MyFace.Controllers
@@ -14,10 +16,12 @@ namespace MyFace.Controllers
     public class InteractionsController : ControllerBase
     {
         private readonly IInteractionsRepo _interactions;
+        private readonly IUsersRepo _users;
 
-        public InteractionsController(IInteractionsRepo interactions)
+        public InteractionsController(IInteractionsRepo interactions, IUsersRepo users)
         {
             _interactions = interactions;
+            _users = users;
         }
     
         [HttpGet("")]
@@ -43,7 +47,23 @@ namespace MyFace.Controllers
                 return BadRequest(ModelState);
             }
         
-            var interaction = _interactions.Create(newUser);
+            var authorizationHeader = Request.Headers["Authorization"].ToString();
+            string encodedUsernamePassword = authorizationHeader.Substring("Basic ".Length).Trim();
+            Encoding encoding = Encoding.GetEncoding("iso-8859-1");
+            string usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
+            int seperatorIndex = usernamePassword.IndexOf(':');
+            var username = usernamePassword.Substring(0, seperatorIndex);
+            var user = _users.GetByUsername(username);
+            return Ok(user);
+
+            var formatInteraction = new FormatCreateInteractionRequest
+            {
+                InteractionType = newUser.InteractionType,
+                PostId = newUser.PostId,
+                UserId = user.Id
+            };
+        
+            var interaction = _interactions.Create(formatInteraction);
 
             var url = Url.Action("GetById", new { id = interaction.Id });
             var responseViewModel = new InteractionResponse(interaction);
