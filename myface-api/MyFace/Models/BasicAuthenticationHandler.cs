@@ -8,6 +8,11 @@ using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using System;
 
+// Create check role in UserService (possible return boolean)
+// If role is Admin, claims.Add (new role = Admin)
+// Add tags Auth-role tags to controller delete actions 
+// Test on postman
+
 namespace MyFace
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
