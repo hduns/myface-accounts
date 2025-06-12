@@ -2,11 +2,15 @@
 using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace MyFace.Controllers
 {
     [ApiController]
     [Route("feed")]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
+
     public class FeedController : ControllerBase
     {
         private readonly IPostsRepo _posts;

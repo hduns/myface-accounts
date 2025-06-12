@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyFace.Repositories;
+using Microsoft.AspNetCore.Authentication;
 
 namespace MyFace
 {
@@ -28,6 +29,12 @@ namespace MyFace
                 options.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
                 options.UseSqlite("Data Source=myface.db");
             });
+
+            // Copiedin 
+            services.AddScoped<IUserService, UserService>();
+            // 4. Add Authentication with our BasicAuthenticationHandler
+            services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
             services.AddCors(options =>
             {
@@ -64,7 +71,10 @@ namespace MyFace
 
             app.UseCors(CORS_POLICY_NAME);
 
+            app.UseAuthorization();
+
             app.UseEndpoints(endpoints => endpoints.MapControllers());
+
         }
     }
 }

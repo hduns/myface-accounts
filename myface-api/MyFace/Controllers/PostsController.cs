@@ -2,20 +2,23 @@
 using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyFace.Controllers
 {
     [ApiController]
     [Route("/posts")]
+    [Authorize(AuthenticationSchemes = "BasicAuthentication")]
+
     public class PostsController : ControllerBase
-    {    
+    {
         private readonly IPostsRepo _posts;
 
         public PostsController(IPostsRepo posts)
         {
             _posts = posts;
         }
-        
+
         [HttpGet("")]
         public ActionResult<PostListResponse> Search([FromQuery] PostSearchRequest searchRequest)
         {
@@ -38,7 +41,7 @@ namespace MyFace.Controllers
             {
                 return BadRequest(ModelState);
             }
-            
+
             var post = _posts.Create(newPost);
 
             var url = Url.Action("GetById", new { id = post.Id });
