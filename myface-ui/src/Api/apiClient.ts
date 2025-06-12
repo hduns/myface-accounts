@@ -39,7 +39,7 @@ export interface Post {
 export interface NewPost {
     message: string;
     imageUrl: string;
-    userId: number;
+    authorizationHeader: string;
 }
 
 export async function fetchUsers(searchTerm: string, page: number, pageSize: number, authorizationHeader: string): Promise<ListResponse<User>> {
@@ -117,7 +117,8 @@ export async function createPost(newPost: NewPost) {
     const response = await fetch(`https://localhost:5001/posts/create`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `${newPost.authorizationHeader}`
         },
         body: JSON.stringify(newPost),
     });
