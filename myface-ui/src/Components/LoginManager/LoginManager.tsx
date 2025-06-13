@@ -40,6 +40,7 @@ export function LoginManager(props: LoginManagerProps): JSX.Element {
         // Add to the Authorization header
         const authorizationHeader = `Basic ${base64EncodedCredentials}`;
         setHeader(authorizationHeader);
+        console.log(authorizationHeader);
         return authorizationHeader;
     }
 
